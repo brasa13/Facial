@@ -18,10 +18,10 @@ export async function GET(req: NextRequest) {
 
   const pacienteMock = {
     id: `PAC-${cleanCpf.slice(-6)}`,
-    nomeCompleto: 'Carlos Eduardo Oliveira',
+    nomeCompleto: 'Andre Teste de Mock',
     cpf: cpfParam.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'),
-    dataNascimento: '1988-04-15',
-    telefone: '(11) 98765-4321',
+    dataNascimento: '2001-06-13',
+    telefone: '(11) 99853-4725',
     fotoBiometricaUrl: mockPhotoSvg,
     consentTimestamp: new Date(Date.now() - 30 * 86400000).toISOString(),
     atualizadoEm: new Date(Date.now() - 30 * 86400000).toISOString(),

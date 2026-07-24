@@ -28,11 +28,10 @@ export const FaceValidationIndicator: React.FC<FaceValidationIndicatorProps> = (
   } = metrics;
 
   return (
-    <div className={`rounded-2xl border p-5 space-y-4 transition-all ${
-      overallValid
+    <div className={`rounded-2xl border p-5 space-y-4 transition-all ${overallValid
         ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
         : 'bg-amber-50/70 border-amber-200 text-amber-950'
-    }`}>
+      }`}>
       {/* Header Result */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -47,11 +46,11 @@ export const FaceValidationIndicator: React.FC<FaceValidationIndicatorProps> = (
               : 'Ajustes Necessários na Foto do Paciente'}
           </h4>
         </div>
-        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border text-center inline-flex items-center justify-center shrink-0 ${
-          overallValid
+        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border 
+          text-center inline-flex items-center justify-center shrink-0 ${overallValid
             ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
             : 'bg-amber-100 text-amber-800 border-amber-300'
-        }`}>
+          }`}>
           {overallValid ? 'Foto Pronta' : 'Atenção'}
         </span>
       </div>
@@ -59,9 +58,8 @@ export const FaceValidationIndicator: React.FC<FaceValidationIndicatorProps> = (
       {/* Metrics Checklist Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* 1. Face Count */}
-        <div className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-medium ${
-          isValidFaceCount ? 'bg-white border-emerald-200 text-slate-800' : 'bg-white border-red-200 text-red-900'
-        }`}>
+        <div className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-medium ${isValidFaceCount ? 'bg-white border-emerald-200 text-slate-800' : 'bg-white border-red-200 text-red-900'
+          }`}>
           <UserCheck className={`w-4 h-4 ${isValidFaceCount ? 'text-emerald-600' : 'text-red-500'}`} />
           <div className="flex-1">
             <div className="text-[11px] text-slate-500 font-normal">Detecção Facial</div>
@@ -72,9 +70,8 @@ export const FaceValidationIndicator: React.FC<FaceValidationIndicatorProps> = (
         </div>
 
         {/* 2. Brightness */}
-        <div className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-medium ${
-          isValidBrightness ? 'bg-white border-emerald-200 text-slate-800' : 'bg-white border-amber-200 text-amber-900'
-        }`}>
+        <div className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-medium ${isValidBrightness ? 'bg-white border-emerald-200 text-slate-800' : 'bg-white border-amber-200 text-amber-900'
+          }`}>
           <Sun className={`w-4 h-4 ${isValidBrightness ? 'text-emerald-600' : 'text-amber-500'}`} />
           <div className="flex-1">
             <div className="text-[11px] text-slate-500 font-normal">Iluminação</div>
@@ -83,9 +80,8 @@ export const FaceValidationIndicator: React.FC<FaceValidationIndicatorProps> = (
         </div>
 
         {/* 3. Nitidez / Blur */}
-        <div className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-medium ${
-          isValidContrast ? 'bg-white border-emerald-200 text-slate-800' : 'bg-white border-amber-200 text-amber-900'
-        }`}>
+        <div className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-medium ${isValidContrast ? 'bg-white border-emerald-200 text-slate-800' : 'bg-white border-amber-200 text-amber-900'
+          }`}>
           <Sparkles className={`w-4 h-4 ${isValidContrast ? 'text-emerald-600' : 'text-amber-500'}`} />
           <div className="flex-1">
             <div className="text-[11px] text-slate-500 font-normal">Nitidez/Contraste</div>
