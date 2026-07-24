@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Search, UserCheck, RefreshCw, CreditCard, User, Calendar, Phone, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, UserCheck, RefreshCw, CreditCard, User, Calendar, Phone, CheckCircle2, AlertCircle, Camera } from 'lucide-react';
 import { PatientRecord, ImageQualityMetrics, LgpdConsent, CapturedPhotosMap, FacialAngle } from '@/types/patient';
 import { formatCPF, validateCPF, cleanCPF } from '@/utils/cpfValidation';
 import { formatPhone, validatePhone } from '@/utils/phoneValidation';
-import { CameraCapture } from './CameraCapture';
+import { CameraCaptureModal } from './CameraCaptureModal';
 import { FaceValidationIndicator } from './FaceValidationIndicator';
 import { dataURItoBlob } from '@/utils/imageAnalysis';
 
@@ -34,6 +34,7 @@ export const RecadastroForm: React.FC<RecadastroFormProps> = ({
   const [isReplacingPhoto, setIsReplacingPhoto] = useState(false);
   const [capturedPhotosMap, setCapturedPhotosMap] = useState<CapturedPhotosMap>({});
   const [imageMetrics, setImageMetrics] = useState<ImageQualityMetrics | null>(null);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSearchCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,7 +142,6 @@ export const RecadastroForm: React.FC<RecadastroFormProps> = ({
 
       onSuccess(`Recadastro e biometria do paciente ${nomeCompleto} atualizados com sucesso!`);
       
-      // Resetar estado
       setPatientRecord(null);
       setHasSearched(false);
       setSearchCpf('');
@@ -154,201 +154,263 @@ export const RecadastroForm: React.FC<RecadastroFormProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Box de Busca por CPF */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
-          <Search className="w-5 h-5 text-clinical-600" />
-          <h3 className="font-bold text-slate-900 text-base">Buscar Paciente para Recadastro</h3>
-        </div>
-
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative flex-1 w-full">
-            <input
-              type="text"
-              placeholder="Digite o CPF do paciente (000.000.000-00)"
-              value={searchCpf}
-              onChange={handleSearchCpfChange}
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-clinical-500 focus:bg-white focus:outline-none transition"
-            />
-            <CreditCard className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+    <>
+      <div className="space-y-6">
+        {/* Box de Busca por CPF */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+            <Search className="w-5 h-5 text-clinical-600" />
+            <h3 className="font-bold text-slate-900 text-base">Buscar Paciente para Recadastro</h3>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSearching || !validateCPF(searchCpf)}
-            className={`w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${
-              validateCPF(searchCpf) && !isSearching
-                ? 'bg-clinical-600 hover:bg-clinical-700 text-white shadow-clinical-600/20'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-            }`}
-          >
-            {isSearching ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Buscando...</span>
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4" />
-                <span>Buscar Prontuário</span>
-              </>
-            )}
-          </button>
-        </form>
-      </div>
-
-      {/* Resultado da Busca: Se encontrado */}
-      {patientRecord && (
-        <form onSubmit={handleUpdate} className="space-y-6 animate-fadeIn">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Coluna Esquerda: Dados do Paciente Existente */}
-            <div className="lg:col-span-6 space-y-6">
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center space-x-2">
-                    <UserCheck className="w-5 h-5 text-emerald-600" />
-                    <h3 className="font-bold text-slate-900 text-base">Prontuário Encontrado</h3>
-                  </div>
-                  <span className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-mono">
-                    ID: {patientRecord.id}
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  {/* Nome Completo */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-700">Nome Completo</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={nomeCompleto}
-                        onChange={(e) => setNomeCompleto(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-clinical-500 focus:outline-none"
-                      />
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                    </div>
-                  </div>
-
-                  {/* Data de Nascimento e Telefone */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="block text-xs font-semibold text-slate-700">Data de Nascimento</label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          value={dataNascimento}
-                          onChange={(e) => setDataNascimento(e.target.value)}
-                          className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-clinical-500 focus:outline-none"
-                        />
-                        <Calendar className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-xs font-semibold text-slate-700">Telefone / Celular</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={telefone}
-                          onChange={(e) => setTelefone(formatPhone(e.target.value))}
-                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-clinical-500 focus:outline-none"
-                        />
-                        <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="relative flex-1 w-full">
+              <input
+                type="text"
+                placeholder="Digite o CPF do paciente (000.000.000-00)"
+                value={searchCpf}
+                onChange={handleSearchCpfChange}
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-clinical-500 focus:bg-white focus:outline-none transition"
+              />
+              <CreditCard className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             </div>
 
-            {/* Coluna Direita: Foto Cadastrada Atual vs Novas Fotos */}
-            <div className="lg:col-span-6 space-y-6">
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h4 className="font-bold text-slate-900 text-sm">Fotos Biométricas do Paciente</h4>
-                  <button
-                    type="button"
-                    onClick={() => setIsReplacingPhoto(!isReplacingPhoto)}
-                    className="text-xs font-semibold text-clinical-600 hover:text-clinical-800 flex items-center space-x-1"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>{isReplacingPhoto ? 'Manter Foto Atual' : 'Substituir por 5 Novas Fotos'}</span>
-                  </button>
-                </div>
-
-                {!isReplacingPhoto ? (
-                  <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <div className="w-36 h-36 rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-100 flex-shrink-0 shadow-inner">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={patientRecord.fotoBiometricaUrl}
-                        alt="Foto Atual do Paciente"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="text-xs text-slate-600 space-y-2">
-                      <p>Foto cadastrada em <strong>{new Date(patientRecord.atualizadoEm).toLocaleDateString('pt-BR')}</strong>.</p>
-                      <p className="text-slate-500 leading-relaxed">
-                        Clique em <strong>Substituir por 5 Novas Fotos</strong> para recapturar o conjunto biométrico de 5 ângulos (Frente, Direita, Esquerda, Cima, Baixo).
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <CameraCapture
-                      disabled={!isCameraEnabled}
-                      disabledReason={cameraDisabledReason}
-                      onCaptureAll={(photosMap, metrics) => {
-                        setCapturedPhotosMap(photosMap);
-                        setImageMetrics(metrics);
-                      }}
-                      onResetAll={() => {
-                        setCapturedPhotosMap({});
-                        setImageMetrics(null);
-                      }}
-                    />
-                    <FaceValidationIndicator metrics={imageMetrics} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Botão de Envio de Recadastro */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center justify-end shadow-sm">
             <button
               type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className={`flex items-center space-x-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all shadow-lg ${
-                isFormValid && !isSubmitting
-                  ? 'bg-clinical-600 hover:bg-clinical-700 text-white shadow-clinical-600/30'
+              disabled={isSearching || !validateCPF(searchCpf)}
+              className={`w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${
+                validateCPF(searchCpf) && !isSearching
+                  ? 'bg-clinical-600 hover:bg-clinical-700 text-white shadow-clinical-600/20'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
               }`}
             >
-              {isSubmitting ? (
-                <span>Atualizando Recadastro...</span>
+              {isSearching ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Buscando...</span>
+                </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span>Salvar Recadastro de Paciente</span>
+                  <Search className="w-4 h-4" />
+                  <span>Buscar Prontuário</span>
                 </>
               )}
             </button>
-          </div>
-        </form>
-      )}
-
-      {hasSearched && !patientRecord && !isSearching && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center space-y-2">
-          <AlertCircle className="w-8 h-8 text-amber-600 mx-auto" />
-          <h4 className="font-bold text-amber-900 text-base">Nenhum Paciente Encontrado</h4>
-          <p className="text-xs text-amber-800">
-            Não encontramos nenhum registro ativo para o CPF <strong>{searchCpf}</strong>. Utilize a aba &quot;Novo Cadastro&quot; para registrar o paciente pela primeira vez.
-          </p>
+          </form>
         </div>
-      )}
-    </div>
+
+        {/* Resultado da Busca */}
+        {patientRecord && (
+          <form onSubmit={handleUpdate} className="space-y-6 animate-fadeIn">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Coluna Esquerda: Dados do Paciente Existente */}
+              <div className="lg:col-span-6 space-y-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <UserCheck className="w-5 h-5 text-emerald-600" />
+                      <h3 className="font-bold text-slate-900 text-base">Prontuário Encontrado</h3>
+                    </div>
+                    <span className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-mono">
+                      ID: {patientRecord.id}
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Nome Completo */}
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold text-slate-700">Nome Completo</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={nomeCompleto}
+                          onChange={(e) => setNomeCompleto(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-clinical-500 focus:outline-none"
+                        />
+                        <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      </div>
+                    </div>
+
+                    {/* Data de Nascimento e Telefone */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1 min-w-0">
+                        <label className="block text-xs font-semibold text-slate-700">Data de Nascimento</label>
+                        <div className="relative">
+                          <input
+                            type="date"
+                            value={dataNascimento}
+                            onChange={(e) => setDataNascimento(e.target.value)}
+                            className="w-full max-w-full min-w-0 pl-9 pr-2 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-clinical-500 focus:outline-none"
+                          />
+                          <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 min-w-0">
+                        <label className="block text-xs font-semibold text-slate-700">Telefone / Celular</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={telefone}
+                            onChange={(e) => setTelefone(formatPhone(e.target.value))}
+                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-clinical-500 focus:outline-none"
+                          />
+                          <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna Direita: Fotos Biométricas */}
+              <div className="lg:col-span-6 space-y-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 className="font-bold text-slate-900 text-sm">Fotos Biométricas do Paciente</h4>
+                    <button
+                      type="button"
+                      onClick={() => setIsReplacingPhoto(!isReplacingPhoto)}
+                      className="text-xs font-semibold text-clinical-600 hover:text-clinical-800 flex items-center space-x-1"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>{isReplacingPhoto ? 'Manter Foto Atual' : 'Substituir por 5 Novas Fotos'}</span>
+                    </button>
+                  </div>
+
+                  {!isReplacingPhoto ? (
+                    <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                      <div className="w-36 h-36 rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-100 flex-shrink-0 shadow-inner">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={patientRecord.fotoBiometricaUrl}
+                          alt="Foto Atual do Paciente"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="text-xs text-slate-600 space-y-2">
+                        <p>Foto cadastrada em <strong>{new Date(patientRecord.atualizadoEm).toLocaleDateString('pt-BR')}</strong>.</p>
+                        <p className="text-slate-500 leading-relaxed">
+                          Clique em <strong>Substituir por 5 Novas Fotos</strong> para recapturar o conjunto biométrico de 5 ângulos (Frente, Direita, Esquerda, Cima, Baixo).
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {!isAllPhotosCaptured ? (
+                        <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-4">
+                          <div className="w-12 h-12 rounded-full bg-clinical-100 text-clinical-700 flex items-center justify-center mx-auto">
+                            <Camera className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-900 text-sm">Capturar Novas Fotos Biométricas</h4>
+                            <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                              {isCameraEnabled
+                                ? 'Clique no botão abaixo para abrir a câmera em modo modal e registrar as 5 fotos.'
+                                : cameraDisabledReason}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={!isCameraEnabled}
+                            onClick={() => setIsCameraModalOpen(true)}
+                            className={`w-full sm:w-auto flex items-center justify-center space-x-2 mx-auto px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${
+                              isCameraEnabled
+                                ? 'bg-clinical-600 hover:bg-clinical-700 text-white shadow-clinical-600/25 active:scale-[0.99]'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                            }`}
+                          >
+                            <Camera className="w-4 h-4" />
+                            <span>Abrir Câmera para Biometria</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-5 gap-2">
+                            {(['frente', 'direita', 'esquerda', 'cima', 'baixo'] as FacialAngle[]).map((angle) => {
+                              const photo = capturedPhotosMap[angle];
+                              if (!photo) return null;
+                              return (
+                                <div key={angle} className="relative aspect-square rounded-xl overflow-hidden border border-emerald-300 shadow-sm">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={photo.base64} alt={angle} className="w-full h-full object-cover" />
+                                  <div className="absolute bottom-0 inset-x-0 bg-slate-900/90 text-white text-[9px] text-center font-bold uppercase py-0.5">
+                                    {angle}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setIsCameraModalOpen(true)}
+                            className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold border border-slate-300 transition"
+                          >
+                            <RefreshCw className="w-4 h-4 text-slate-600" />
+                            <span>Recapturar / Editar Novas Fotos</span>
+                          </button>
+                        </div>
+                      )}
+
+                      <FaceValidationIndicator metrics={imageMetrics} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Botão de Envio de Recadastro */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0 shadow-sm">
+              <div className="text-xs text-slate-500 text-center sm:text-left">
+                * Verifique todas as alterações antes de salvar o prontuário.
+              </div>
+
+              <button
+                type="submit"
+                disabled={!isFormValid || isSubmitting}
+                className={`w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-md ${
+                  isFormValid && !isSubmitting
+                    ? 'bg-clinical-600 hover:bg-clinical-700 text-white shadow-clinical-600/30 active:scale-[0.99]'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                }`}
+              >
+                {isSubmitting ? (
+                  <span>Salvando...</span>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Salvar Recadastro</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {hasSearched && !patientRecord && !isSearching && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center space-y-2">
+            <AlertCircle className="w-8 h-8 text-amber-600 mx-auto" />
+            <h4 className="font-bold text-amber-900 text-base">Nenhum Paciente Encontrado</h4>
+            <p className="text-xs text-amber-800">
+              Não encontramos nenhum registro ativo para o CPF <strong>{searchCpf}</strong>. Utilize a aba &quot;Novo Cadastro&quot; para registrar o paciente pela primeira vez.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal da Câmera no Recadastro */}
+      <CameraCaptureModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+        initialPhotosMap={capturedPhotosMap}
+        onCaptureAll={(photosMap, metrics) => {
+          setCapturedPhotosMap(photosMap);
+          setImageMetrics(metrics);
+        }}
+      />
+    </>
   );
 };
