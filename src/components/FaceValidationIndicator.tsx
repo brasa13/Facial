@@ -47,7 +47,7 @@ export const FaceValidationIndicator: React.FC<FaceValidationIndicatorProps> = (
               : 'Ajustes Necessários na Foto do Paciente'}
           </h4>
         </div>
-        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border text-center inline-flex items-center justify-center shrink-0 ${
           overallValid
             ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
             : 'bg-amber-100 text-amber-800 border-amber-300'
