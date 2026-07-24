@@ -114,7 +114,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
       }
 
       onSuccess(`Paciente ${formData.nomeCompleto} cadastrado com sucesso! 5 fotos de biometria registradas.`);
-      
+
       // Limpa formulário após sucesso
       setFormData({
         nomeCompleto: '',
@@ -138,7 +138,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         {/* Coluna da Esquerda (Dados do Paciente + LGPD) */}
         <div className="lg:col-span-6 space-y-6">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
@@ -180,11 +180,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                   value={formData.cpf}
                   onChange={handleCPFChange}
                   onBlur={() => setCpfTouched(true)}
-                  className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:outline-none transition ${
-                    cpfTouched && !isCpfValid
+                  className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:outline-none transition ${cpfTouched && !isCpfValid
                       ? 'border-red-400 bg-red-50/50 focus:ring-red-400'
                       : 'border-slate-300 focus:ring-clinical-500 focus:bg-white'
-                  }`}
+                    }`}
                 />
                 <CreditCard className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 {cpfTouched && (
@@ -234,11 +233,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                     value={formData.telefone}
                     onChange={handlePhoneChange}
                     onBlur={() => setPhoneTouched(true)}
-                    className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:outline-none transition ${
-                      phoneTouched && !isPhoneValid
+                    className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:outline-none transition ${phoneTouched && !isPhoneValid
                         ? 'border-red-400 bg-red-50/50 focus:ring-red-400'
                         : 'border-slate-300 focus:ring-clinical-500 focus:bg-white'
-                    }`}
+                      }`}
                   />
                   <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 </div>
@@ -250,16 +248,14 @@ export const PatientForm: React.FC<PatientFormProps> = ({
           </div>
 
           {/* Banner de Aceite LGPD */}
-          <div className={`rounded-2xl border p-5 transition-all ${
-            lgpdConsent.accepted
+          <div className={`rounded-2xl border p-5 transition-all ${lgpdConsent.accepted
               ? 'bg-emerald-50/80 border-emerald-200'
               : 'bg-amber-50/80 border-amber-200'
-          }`}>
+            }`}>
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3">
-                <ShieldCheck className={`w-5 h-5 mt-0.5 ${
-                  lgpdConsent.accepted ? 'text-emerald-600' : 'text-amber-600'
-                }`} />
+                <ShieldCheck className={`w-5 h-5 mt-0.5 ${lgpdConsent.accepted ? 'text-emerald-600' : 'text-amber-600'
+                  }`} />
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">
                     Consentimento LGPD para Biometria Facial
@@ -274,11 +270,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({
               <button
                 type="button"
                 onClick={onOpenLgpdModal}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                  lgpdConsent.accepted
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${lgpdConsent.accepted
                     ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800'
                     : 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm'
-                }`}
+                  }`}
               >
                 {lgpdConsent.accepted ? 'Revisar Aceite' : 'Abrir Termo LGPD'}
               </button>
@@ -314,18 +309,17 @@ export const PatientForm: React.FC<PatientFormProps> = ({
         <button
           type="submit"
           disabled={!isFormValid || isSubmitting}
-          className={`flex items-center space-x-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all shadow-lg ${
-            isFormValid && !isSubmitting
+          className={`flex items-center space-x-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all shadow-lg ${isFormValid && !isSubmitting
               ? 'bg-clinical-600 hover:bg-clinical-700 text-white shadow-clinical-600/30 hover:scale-[1.01] active:scale-[0.99]'
               : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-          }`}
+            }`}
         >
           {isSubmitting ? (
             <span>Enviando Cadastro...</span>
           ) : (
             <>
               <Send className="w-5 h-5" />
-              <span>Confirmar e Cadastrar Paciente (5 Fotos)</span>
+              <span>Confirmar e Cadastrar</span>
             </>
           )}
         </button>
